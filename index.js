@@ -27,8 +27,9 @@ var queryString =  require('querystring');
 
 //pulling in new async module file
 var async = require('async');
+var MongoClient = require('mongodb').MongoClient;
 var storage = require('./storage.js');
-//storage.connect();
+storage.connect();
 
 
 //creating server port
