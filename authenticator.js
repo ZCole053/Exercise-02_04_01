@@ -112,7 +112,7 @@ module.exports = {
                     //getting the id through the data recieved
                     twitterCredentials.twitter_id = data.id_str;
                     //test
-                    console.log(data);
+                    //console.log(data);
                     //succeded and returns that is works
                     //if taken out it will result in spin mode
                     return callback();

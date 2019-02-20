@@ -55,10 +55,33 @@ app.get('/', function(req,res) {
     if(!credentials.access_token || !credentials.access_token_secret){
         return res.redirect('login');
     }       
-    // if(!storage.connected()){
+    if(!storage.connected()){
         console.log("Loading")
         return renderMainPageFromTwitter(req,res);
-    // }
+     }
+     console.log("Loading friends from MongoDB.");
+     //this is where the callback gets defined
+     storage.getFriends(credentials.twitter_id, function(err, friends){
+        if(err){
+            return res.status(500).send(err);
+        }
+        //success empty array or full array
+        if(friends.length > 0){
+            console.log("Friends successfully loaded from MongoDB.");
+            //reordering the array
+            //function tells what it needs to do and always has 2 parameters
+            //needs previouse and current friend and a possible swap
+            friends.sort(function(a, b){
+                //lower casing to make sorting easier
+                return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+            });
+            res.render('index', {friends: friends});
+        }
+        else{
+            console.log("Loading friends from Twitter.");
+            renderMainPageFromTwitter(req, res);
+        }
+     });
 });
 
 //pulling url route
@@ -262,11 +285,19 @@ app.get(url.parse(config.oauth_callback).path, function(req,res){
 });
 
 app.get('/login', function(req,res){
+    if(storage.connected()){
+        console.log("Deleting friends collection on Login.");
+        storage.deleteFriends();
+    }
     res.render('login');
 });
 
 app.get('/logout', function(req,res){
     authenticator.clearCredentials();
+    if(storage.connected()){
+        console.log("Deleting friends collection on Logout.");
+        storage.deleteFriends();
+    }
     res.redirect('/login');
 });
 
