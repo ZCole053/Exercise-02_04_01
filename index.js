@@ -49,6 +49,16 @@ app.use(express.static(__dirname + '/public'));
 app.set('view engine', 'ejs');
 
 
+//clearing cash after a while 
+setInterval(function(){
+    //if connection is good it will clear it
+    if(storage.connect){
+        console.log("Clearing MongoDB cash");
+        storage.deleteFriends();
+    }
+}, 1000 * 60 * 5);//setting the time to 5 minute for debug
+
+
 //checking for my end points endpoint
 app.get('/', function(req,res) {
     var credentials = authenticator.getCredentials();
