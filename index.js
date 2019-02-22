@@ -259,7 +259,7 @@ function renderMainPageFromTwitter(req, res) {
                 });
                 friends = friends.map(function(friend) {
                     return {
-                        twitter_id:friend.id_stir,
+                        twitter_id:friend.id_str,
                         for_user: credentials.twitter_id,
                         name: friend.name,
                         screen_name: friend.screen_name,
