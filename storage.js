@@ -2,9 +2,9 @@
 
 //Summary: creating a backend database and instering it into the database
 
-//file name: Storage.js
+//file name: storage.js
 //Date made: Febuary 14 2019
-//LTE: Febuary 19 2019
+//LTE: Febuary 22 2019
 
 
 //creating variables and requiring in
@@ -67,6 +67,30 @@ module.exports = {
             if(err){
                 console.log("Cannot remove friends from database.");
             }
+        });
+    },
+    getNotes: function(ownerid, friendid, callback){
+        //targeting notes collection
+        //database is a mongodb engine
+        var cursor = database.collection('notes').find({
+            owner_id: ownerid,
+            friend_id: friendid
+        });
+        //converts result set to an array
+        cursor.toArray(function(err, notes){
+            if(err){
+                //trapping in callback
+                return callback(err);
+            }
+            //null cuz no err
+            //get node and map
+            //will loop through array feed function that names loop variable what we want
+            callback(null, notes.map(function(note){
+                return{
+                    _id: note._id,
+                    content: note.content
+                }
+            }));
         });
     }
 }

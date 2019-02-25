@@ -6,7 +6,7 @@
 
 //file name: main.js
 //Date made: Febuary 21 2019
-//LTE: Febuary 21 2019
+//LTE: Febuary 22 2019
 
 
 //expression has to evaluate as a function

@@ -304,11 +304,46 @@ app.get('/login', function(req,res){
 
 app.get('/logout', function(req,res){
     authenticator.clearCredentials();
+    res.clearCookie('twitter_id');
     if(storage.connected()){
         console.log("Deleting friends collection on Logout.");
         storage.deleteFriends();
     }
     res.redirect('/login');
+});
+
+//middle ware to check credentials
+function ensureLoggedIn(req,res,next){
+    var credentials = authenticator.getCredentials();
+    //trap to see if user logged in
+    if(!credentials.access_token || 
+        !credentials.access_token_secret || 
+        !credentials.twitter_id){
+        return res.sendStatus(401);//closed middle ware and route
+    }
+    //sets cookie
+    //setting paremeters for security in json (little security should encrypt)
+    res.cookie('twitter_id',credentials.twitter_id,{httponly: true});//reads cookie as only http
+    //next would go over to the res side unless there is a middle ware chain
+    next();
+}
+
+//mian route into api; creating route for testing
+//manuelly mounting middle ware
+//it will shute down if failure so it won't activate call back
+//will route the api
+app.get('/friends/:uid/notes', ensureLoggedIn, function(req,res){
+    //creating incase cookie can't be read
+    var credentials = authenticator.getCredentials();
+    //places the data into the route
+    //parse will store the id as a request parameter
+    storage.getNotes(credentials.twitter_id, req.param.uid, function(err, notes){
+        //error is that getnotes failer
+        if(err){
+            return  res.status(500).send(err);
+        }
+        res.send(notes);
+    });//primitive get notes in storage
 });
 
 
