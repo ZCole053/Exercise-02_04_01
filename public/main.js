@@ -6,7 +6,7 @@
 
 //file name: main.js
 //Date made: Febuary 21 2019
-//LTE: Febuary 22 2019
+//LTE: February 25 2019
 
 
 //expression has to evaluate as a function
@@ -34,8 +34,57 @@
             this.className += ' active';
             selectedUserId = this.getAttribute('uid');
             console.log("twitter id: ",selectedUserId);
+            //not the same as the backend function
+            //protected by the iffe scope is limited to the iffe
+            var notes = getNotes(selectedUserId, function(notes){
+                //building user interface
+                //creates mini doc to swap in swap out
+                var docFragment = document.createDocumentFragment();
+                var notesElements = createNoteElement(notes);
+            });
         });
        }
+    }
+
+    //cache is json that holds the notes name value pair
+    function getNotes(userId, callback){
+        if(cache[userId]){
+            return callback(cache[userId]);
+        }
+        //setting up AJAX request to get notes
+        //geting XHR object
+        //creates a new object 
+        var xhttp = new XMLHttpRequest();
+        //event property value can be set to event handler
+        xhttp.onreadystatechange = function(){
+            //will activate every time the xhttp state changes
+            //request is done when it gets to ready state 4; 0-4
+            if(xhttp.readyState == 4 && xhttp.status == 200){
+                var notes = JSON.parse(xhttp.responseText || []);//if gotten back it will be in the repose text
+                cache[userId] = notes;
+                //getting out and sends notes back
+                callback(notes);
+            }
+        };
+        //construct a request 
+        //open needs to know how we want to send it
+        //elimates characters using the encoding
+        xhttp.open('GET','/friends/' + encodeURIComponent(userId) + '/notes');
+        //sending the request
+        xhttp.send();
+    }
+
+
+    function createNoteElement(notes){
+        //mapping array of json too elemnts
+        return notes.map(function(note){
+            var element = document.createElement('li');
+            element.className = 'note';
+            element.setAttribute('contenteditable', true);
+            element.textContent(note.contetnt);
+            return note;
+        });
+        return notes;
     }
 
     //creating an eventhandler

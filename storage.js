@@ -4,7 +4,7 @@
 
 //file name: storage.js
 //Date made: Febuary 14 2019
-//LTE: Febuary 22 2019
+//LTE: February 25 2019
 
 
 //creating variables and requiring in
@@ -57,7 +57,7 @@ module.exports = {
         //converts json to an array
         cursor.toArray(callback);
     },
-    //deletes all data but not in twitter in database
+    //deletes all data but not in twitter database
     //it is being used as a cash
     //no peramaters needed
     deleteFriends: function(){
@@ -87,7 +87,7 @@ module.exports = {
             //will loop through array feed function that names loop variable what we want
             callback(null, notes.map(function(note){
                 return{
-                    _id: note._id,
+                    _id: note._id,//mongodb created id
                     content: note.content
                 }
             }));
