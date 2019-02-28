@@ -10,6 +10,11 @@
 
 //declaring local variables
 var express = require('express'); 
+
+
+var bodyParser = require('body-parser');
+
+
 //constructing object and putting it into app.
 var app = express();
 
@@ -40,6 +45,10 @@ storage.connect();
 //it is a constructor
 //it is an iffe returns function name
 app.use(require('cookie-parser')());
+
+
+//places any data request into json
+app.use(bodyParser.json());
 
 //looks for static content like index but we made it relative with dirname
 app.use(express.static(__dirname + '/public'));
@@ -346,6 +355,18 @@ app.get('/friends/:uid/notes', ensureLoggedIn, function(req,res){
     });//primitive get notes in storage
 });
 
+//looking for post request so we can post data
+//can use the same route of we use a diffrent verb
+app.post('/friends/:uid/notes', ensureLoggedIn, function(req,res,next){
+    //associative array storred in req global
+    storage.insertNote(req.cookies.twitter_id,req.param.uid, req.body.content,function(err,note){
+        if(err){
+            return  res.status(500).send(err);
+        }
+        //formulating a response if it works it will be sent back
+        res.send(note);
+    });
+});
 
 //building server and listening to the port
 app.listen(config.port,function(){

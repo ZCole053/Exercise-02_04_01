@@ -92,5 +92,28 @@ module.exports = {
                 }
             }));
         });
+    },
+    //used to insert notes
+    insertNote: function(ownerid, friendid, content, callback){
+        //targeting note to insert into the database
+        database.collection('notes').insert({
+            //json that contains what we want inserted
+            owner_id: ownerid,
+            friend_id: friendid,
+            content: content
+        },
+        function(err,result){
+           if(err){
+                return callback(err, result);
+           } 
+           //no error so we return json
+           //getting back what we posted and mongo will make it's own identifier
+           callback(null, {
+               //holds the id assigned by mongo
+               //array returned id
+                _id: result.ops[0]._id,
+                content: result.ops[0].content
+           });
+        });
     }
 }

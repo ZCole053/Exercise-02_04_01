@@ -40,7 +40,17 @@
                 //building user interface
                 //creates mini doc to swap in swap out
                 var docFragment = document.createDocumentFragment();
-                var notesElements = createNoteElement(notes);
+                var notesElements = createNoteElements(notes);
+                notesElements.forEach(function(element){
+                    docFragment.appendChild(element);
+                });
+                //adds button to click to add anew note
+                var newNoteButton = createAddNoteButton();
+                docFragment.appendChild(newNoteButton);
+                //getting the real dom to add the li between the ul
+                document.getElementById('notes').innerHTML = "";
+                document.getElementById('notes').appendChild(docFragment);
+
             });
         });
        }
@@ -74,17 +84,50 @@
         xhttp.send();
     }
 
+    function postNewNote(userId, note, callback){
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function(){
+            if(xhttp.readyState == 4 && xhttp.status == 200){
+                //what ever is given back in response text will be parsed
+                var serverNote = JSON.parse(xhttp.responseText || {});
+                //pushes onto the end 
+                cache[userId].push(serverNote);
+                callback(serverNote);
+            }
+        };
+        xhttp.open('POST', '/friends/' + encodeURIComponent(userId) + '/notes');
+        //setting header on request
+        xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8"); 
+        //sending data the content needs to be json 
+        xhttp.send(JSON.stringify(note));
+    }
 
-    function createNoteElement(notes){
+
+    function createNoteElements(notes){
         //mapping array of json too elemnts
         return notes.map(function(note){
-            var element = document.createElement('li');
-            element.className = 'note';
-            element.setAttribute('contenteditable', true);
-            element.textContent(note.contetnt);
-            return note;
+            var element = document.createElement('li');//making li html elements
+            element.className = 'note';//css things
+            element.setAttribute('contenteditable', true);//made to be editable
+            element.textContent = note.content;//puts into notes content
+            return element;
         });
         return notes;
+    }
+
+    //function to creat note doesn't need parameters
+    function createAddNoteButton(){
+        var element = document.createElement('li');
+        //getting css
+        element.className = 'add-note';
+        //adding css content
+        element.textContent = "Add a new note...";
+        element.addEventListener('click', function(){
+            var noteElement = createNoteElements([{}])[0];//bug
+            document.getElementById('notes').insertBefore(noteElement, this);
+            noteElement.focus();
+        });
+        return element;
     }
 
     //creating an eventhandler
