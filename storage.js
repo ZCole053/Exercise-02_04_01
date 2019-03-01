@@ -9,6 +9,7 @@
 
 //creating variables and requiring in
 var MongoClient = require('mongodb').MongoClient;
+var ObjectId = require('mongodb').ObjectId;
 var url = 'mongodb://localhost:27017';
 var dbName = 'twitter_notes';
 var database;
@@ -138,5 +139,13 @@ module.exports = {
                 }, callback);//debug check if broken
             }
         });
+    },
+    deleteNote: function(noteId, ownerId, callback){
+        //needs json also to filter
+        database.collection('notes').deleteOne({
+             //id was placed in a object
+             _id: new ObjectId(noteId),
+             owner_id:ownerId
+        }, callback);
     }
 }

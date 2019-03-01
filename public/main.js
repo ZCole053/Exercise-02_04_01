@@ -101,6 +101,8 @@
         //sending data the content needs to be json 
         xhttp.send(JSON.stringify(note));
     }
+
+
     function putNote(userId, note, callback){
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function(){
@@ -110,7 +112,7 @@
                 callback(serverNote);
             }
         };
-        xhttp.open('POST', '/friends/' + encodeURIComponent(userId) + '/notes/' + encodeURIComponent(note._id), true);
+        xhttp.open('PUT', '/friends/' + encodeURIComponent(userId) + '/notes/' + encodeURIComponent(note._id), true);
         //setting header on request
         xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8"); 
         //sending data the content needs to be json 
@@ -118,7 +120,25 @@
     }
 
 
+    function deleteNote(userId, note, callback){
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function(){
+            if(xhttp.readyState == 4 && xhttp.status == 200){
+                //another array method; takes array filters out elements and reconstructes it
+                //filter does not work in place needs to be assigned back to itself
+                cache[userId] = cache[userId].filter(function(localNote){
+                    //if it is equal to it then it will get ride of it
+                    return localNote._id != note._id;
+                });
+                callback();
+            }
+        };
+        xhttp.open('DELETE', '/friends/' + encodeURIComponent(userId) + '/notes/' + encodeURIComponent(note._id), true);       
+        //sending data the content needs to be json 
+        xhttp.send(JSON.stringify(note));
+    }
 
+//GUI
     function createNoteElements(notes){
         //mapping array of json too elemnts
         return notes.map(function(note){
@@ -135,7 +155,9 @@
                 if(note.content == ""){
                     //if it existed and it is wiped out it will be deleted
                     if(note._id){
-
+                        deleteNote(selectedUserId, note, function(){
+                            document.getElementById('notes').removeChild(element);
+                        });
                     }else{
                         document.getElementById('notes').removeChild(element);
                     }
@@ -144,6 +166,11 @@
                     postNewNote(selectedUserId, {content: this.textContent}, function(newNote){
                         //adds the id that mongo has created
                         note._id = newNote._id//puts note id back into element
+                    });
+                }else{
+                    //updates by complete override
+                    putNote(selectedUserId, note,function(){
+
                     });
                 }
             });

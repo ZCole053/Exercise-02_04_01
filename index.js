@@ -371,8 +371,7 @@ app.post('/friends/:uid/notes', ensureLoggedIn, function(req,res,next){
 //creating to update
 app.put('/friends/:uid/notes/:noteid',ensureLoggedIn,function(req, res){
     //uri component not going in the url
-    var noteId = req.params.noteId;
-    storage.updateNote(noteId,req.cookies.twitter_id,req.body.content, function(err,note){
+    storage.updateNote(req.params.noteid ,req.cookies.twitter_id,req.body.content, function(err,note){
         if(err){
             return  res.status(500).send(err);
         }
@@ -382,6 +381,19 @@ app.put('/friends/:uid/notes/:noteid',ensureLoggedIn,function(req, res){
             _id: note._id,
             content: note.content
         });
+    });
+});
+
+//deleting a note
+app.delete('/friends/:uid/notes/:noteid',ensureLoggedIn,function(req, res){
+    //uri component not going in the url
+    storage.deleteNote(req.params.noteid ,req.cookies.twitter_id, function(err,note){
+        if(err){
+            return  res.status(500).send(err);
+        }
+        //returning json object
+        //sending content we want to update 
+        res.sendStatus(200);
     });
 });
 
