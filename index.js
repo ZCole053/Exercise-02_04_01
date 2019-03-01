@@ -196,7 +196,7 @@ function renderMainPageFromTwitter(req, res) {
             //preseting to 1
             var cursor = -1;
             var ids=[];
-            console.log("ids.length: " + ids.length);
+            //console.log("ids.length: " + ids.length);
             //parm1 = when to stop, parm2 = what task it does in each loop
             async.whilst(function(){//always returns bollean response
                 return cursor !=0;//return true
@@ -218,7 +218,7 @@ function renderMainPageFromTwitter(req, res) {
                         cursor = data.next_cursor_str;
                         //array concat function
                         ids = ids.concat(data.ids);
-                        console.log("ids.length: " + ids.length);//debug
+                        //console.log("ids.length: " + ids.length);//debug
                         //calling the callback
                         callback();
                 });
@@ -365,6 +365,23 @@ app.post('/friends/:uid/notes', ensureLoggedIn, function(req,res,next){
         }
         //formulating a response if it works it will be sent back
         res.send(note);
+    });
+});
+
+//creating to update
+app.put('/friends/:uid/notes/:noteid',ensureLoggedIn,function(req, res){
+    //uri component not going in the url
+    var noteId = req.params.noteId;
+    storage.updateNote(noteId,req.cookies.twitter_id,req.body.content, function(err,note){
+        if(err){
+            return  res.status(500).send(err);
+        }
+        //returning json object
+        //sending content we want to update 
+        res.send({
+            _id: note._id,
+            content: note.content
+        });
     });
 });
 

@@ -101,6 +101,22 @@
         //sending data the content needs to be json 
         xhttp.send(JSON.stringify(note));
     }
+    function putNote(userId, note, callback){
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function(){
+            if(xhttp.readyState == 4 && xhttp.status == 200){
+                //what ever is given back in response text will be parsed
+                var serverNote = JSON.parse(xhttp.responseText || {});
+                callback(serverNote);
+            }
+        };
+        xhttp.open('POST', '/friends/' + encodeURIComponent(userId) + '/notes/' + encodeURIComponent(note._id), true);
+        //setting header on request
+        xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8"); 
+        //sending data the content needs to be json 
+        xhttp.send(JSON.stringify(note));
+    }
+
 
 
     function createNoteElements(notes){
@@ -110,9 +126,48 @@
             element.className = 'note';//css things
             element.setAttribute('contenteditable', true);//made to be editable
             element.textContent = note.content;//puts into notes content
+            //adding event handle onto the note boxes
+            //best time to cick off event is when the user leaves the box
+            element.addEventListener('blur', function(){
+                //this = current object most likely the li
+                note.content = this.textContent;
+                //checking the note content
+                if(note.content == ""){
+                    //if it existed and it is wiped out it will be deleted
+                    if(note._id){
+
+                    }else{
+                        document.getElementById('notes').removeChild(element);
+                    }
+                }else if(!note._id){
+                    //activaes and passes in post new notes function
+                    postNewNote(selectedUserId, {content: this.textContent}, function(newNote){
+                        //adds the id that mongo has created
+                        note._id = newNote._id//puts note id back into element
+                    });
+                }
+            });
+            //parameters can be added from handler
+            //can use properties and methods from the event itself
+            //depends on event for properties and methods
+            element.addEventListener('keydown', function(e){
+                //trapping key
+                //code of key that was fired or keyboard number
+                if(e.keyCode == 13){
+                    e.preventDefault();
+                    //next sibling is the add note button
+                    if(element.nextSibling.className == 'add-note'){
+                        //clicks add note button within the code
+                        element.nextSibling.click();
+                    }else{
+                        //if another note bellow it will go to the next note
+                        element.nextSibling.focus();
+                    }
+                }
+            });
             return element;
         });
-        return notes;
+        return notes;//debug
     }
 
     //function to creat note doesn't need parameters

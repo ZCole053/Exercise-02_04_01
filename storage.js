@@ -115,5 +115,28 @@ module.exports = {
                 content: result.ops[0].content
            });
         });
+    },
+    updateNote: function(noteId, ownerId, content, callback){
+        //update One requires a filter
+        database.collection('notes').updateOne({
+            //id was placed in a object
+            _id: new ObjectId(noteId),
+            owner_id:ownerId
+        },{
+            //telling what to do for update using preset words
+            //set means we want to set a new value and get is getting a value
+            $set: { content: content}
+        },{
+            //callback
+            function(err, result){
+                if(err){
+                    return callback(err);
+                }
+                //tries again to set the json 
+                database.collection('notes').findOne({
+                    _id: new ObjectId(noteId)
+                }, callback);//debug check if broken
+            }
+        });
     }
 }
